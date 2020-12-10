@@ -81,11 +81,10 @@ class SterileNeutrinoMixing():
             return fig,ax
 
 
-    def DessertScience2020(ax,col=[0.8, 0.0, 0.0],fs=15):
+    def DessertScience2020(ax,col=[0.8, 0.0, 0.0],fs=15,data_dir='../data/'):
         # arXiv[1812.06976]
         y2 = ax.get_ylim()[1]
-        col = [0.8, 0.0, 0.0]
-        DessertLimit = pd.read_csv('../data/DessertScienceLimit.txt',delimiter=' ',header=None)
+        DessertLimit = pd.read_csv(data_dir+'DessertScienceLimit.txt',delimiter=' ',header=None)
         m_arr = DessertLimit.iloc[0]
         sin_arr = DessertLimit.iloc[1]
         plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=None,facecolor=col,zorder=0.1)
@@ -95,7 +94,7 @@ class SterileNeutrinoMixing():
         return
 
 
-    def PerezBulge2019(ax,col=[0.1, 0.5, 0.2],fs=17,Rescale=True):
+    def PerezBulge2019(ax,col=[0.1, 0.5, 0.2],fs=17,Rescale=True,data_dir='../data/'):
         # 1908.09037
 
         y2 = ax.get_ylim()[1]
@@ -106,7 +105,7 @@ class SterileNeutrinoMixing():
         else:
             RescalingFactor = 1
         
-        m_arr,sin_arr = wpd.read_csv('../data/Perez2019Bulge.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'Perez2019Bulge.csv')
         plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=None,facecolor=col,zorder=0.1)
         plt.plot(m_arr,sin_arr*RescalingFactor,'k',alpha=0.5,lw=0.5,zorder=0)
 
@@ -114,7 +113,7 @@ class SterileNeutrinoMixing():
         
         return
 
-    def BulbulHalo2020(ax,col=[0.83, 0.07, 0.37],fs=15,Rescale=True):
+    def BulbulHalo2020(ax,col=[0.83, 0.07, 0.37],fs=15,Rescale=True,data_dir='../data/'):
         # 2008.02283
         
         if Rescale:
@@ -124,7 +123,7 @@ class SterileNeutrinoMixing():
         else:
             RescalingFactor = 1
         y2 = ax.get_ylim()[1]
-        m_arr,sin_arr = wpd.read_csv('../data/Bulbul2020BS.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'Bulbul2020BS.csv')
         plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=None,facecolor=col,zorder=1)
         plt.plot([m_arr[0],m_arr[0]],[sin_arr[0]*RescalingFactor,y2],color='k',alpha=0.5,zorder=0.9,lw=2)
         plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1]*RescalingFactor,y2],color='k',alpha=0.5,zorder=0.9,lw=2)
@@ -133,21 +132,21 @@ class SterileNeutrinoMixing():
 
         return
     
-    def MiscXMMChandra(ax,fs=15,col=[0.7, 0.2, 0.2]):
+    def MiscXMMChandra(ax,fs=15,col=[0.7, 0.2, 0.2],data_dir='../data/'):
         y2 = ax.get_ylim()[1]
         
-        m_arr,sin_arr = wpd.read_csv('../data/XrayConglomerated.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'XrayConglomerated.csv')
         plt.plot(m_arr,sin_arr,color='k',alpha=0.5,zorder=-0.1,lw=2)
         plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color='k',alpha=0.5,zorder=-0.1,lw=2)
         plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color='k',alpha=0.5,zorder=-0.1,lw=2)
         plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=None,facecolor=col,zorder=0)
         plt.text(6.25,6e-10,r'XMM and Chandra',fontsize=fs,color='w',rotation=90,ha='center',va='top',zorder=10)
 
-    def AbajAndromeda2013(ax,fs=15,col=[0.5, 0.0, 0.13]):
+    def AbajAndromeda2013(ax,fs=15,col=[0.5, 0.0, 0.13],data_dir='../data/'):
         # 1311.0282
         y2 = ax.get_ylim()[1]
         
-        m_arr,sin_arr = wpd.read_csv('../data/M31_Xray.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'M31_Xray.csv')
         plt.plot(m_arr,sin_arr,color='k',alpha=0.5,zorder=-0.1,lw=2)
         plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color='k',alpha=0.5,zorder=-0.1,lw=2)
         plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color='k',alpha=0.5,zorder=-0.1,lw=2)
@@ -155,22 +154,22 @@ class SterileNeutrinoMixing():
         plt.text(5.2,8e-10,r'M31',fontsize=fs,color='w',rotation=0,ha='center',va='top',zorder=5)
 
 
-    def DMUnderproduction(ax,fs=20,col='k',alpha=0.2,text_col='k'):
+    def DMUnderproduction(ax,fs=20,col='k',alpha=0.2,text_col='k',data_dir='../data/'):
         y2 = ax.get_ylim()[-1]
 
         # arxiv: 2009.07206
-        m_arr,sin_arr = wpd.read_csv('../data/BBN.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'BBN.csv')
         plt.plot(m_arr,sin_arr,color=col,lw=3,alpha=min(alpha*2,1),zorder=0)
         plt.fill_between(m_arr,0,sin_arr,edgecolor=None,facecolor=col,zorder=0,alpha=0.2)
         plt.text(5,2e-13,r'DM Underproduction',fontsize=fs,color=text_col,ha='center')
 
         return
     
-    def DES_Subhalo_Counts(ax,fs=20,col=[0.03, 0.57, 0.82],alpha=0.2,text_col='k'):
+    def DES_Subhalo_Counts(ax,fs=20,col=[0.03, 0.57, 0.82],alpha=0.2,text_col='k',data_dir='../data/'):
         y2 = ax.get_ylim()[-1]
 
         # arxiv: 2008.00022
-        m_arr,sin_arr = wpd.read_csv('../data/DES_MWsubhalo.csv')
+        m_arr,sin_arr = wpd.read_csv(data_dir+'DES_MWsubhalo.csv')
         sin_arr_continued = np.concatenate([sin_arr,[y2]])
         m_arr_continued = np.concatenate([m_arr,[m_arr[-1]]])
         plt.plot(m_arr_continued,sin_arr_continued,color=col,lw=3,alpha=min(alpha*2,1),zorder=100)
