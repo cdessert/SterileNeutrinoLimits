@@ -29,10 +29,11 @@ pltdir_png = pltdir+'plots_png/'
 
 #==============================================================================#
 class SterileNeutrinoMixing():
+    
     def FigSetup(xlab=r'$m_s$ [keV]',ylab=r'$\sin^2(2\theta)$',\
                      sin_min = 1.0e-13,sin_max = 1.0e-9,\
-                     m_min = 4,m_max = 20,\
-                     lw=2.5,lfs=45,tfs=25,tickdir='out',\
+                     m_min = 1,m_max = 50,\
+                     lw=2.5,lfs=45,tfs=32,tickdir='in',alpha=0.8,\
                      Grid=False,Shape='Rectangular',mathpazo=False,TopAndRightTicks=False):
 
 #             plt.rcParams['axes.linewidth'] = lw
@@ -51,20 +52,20 @@ class SterileNeutrinoMixing():
 
             ax.set_xlabel(xlab,fontsize=lfs)
             ax.set_ylabel(ylab,fontsize=lfs)
-
-            ax.tick_params(which='major',direction=tickdir,width=2.5,length=13,right=TopAndRightTicks,top=TopAndRightTicks,pad=8)
-            ax.tick_params(which='minor',direction=tickdir,width=1,length=10,right=TopAndRightTicks,top=TopAndRightTicks)
-
-
+            
             ax.set_yscale('log')
             ax.set_xscale('log')
             ax.set_xlim([m_min,m_max])
             ax.set_ylim([sin_min,sin_max])
 
-            locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=50)
+            ax.tick_params(which='major',direction=tickdir,width=2.5,length=13,right=TopAndRightTicks,top=TopAndRightTicks,pad=8,labelsize=tfs)
+            ax.tick_params(which='minor',direction=tickdir,width=1,length=10,right=TopAndRightTicks,top=TopAndRightTicks,pad=8,labelsize=tfs)
+
+            locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, 3.0), numticks=50)
             locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
             ax.xaxis.set_major_locator(locmaj)
             ax.xaxis.set_minor_locator(locmin)
+            ax.xaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.0f'))
             ax.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
             locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=100)
@@ -73,28 +74,38 @@ class SterileNeutrinoMixing():
             ax.yaxis.set_minor_locator(locmin)
             ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
-            if Shape=='Rectangular':
-                plt.xticks(rotation=20)
-
             if Grid:
                 ax.grid(zorder=0)
+                            
             return fig,ax
 
 
-    def DessertScience2020(ax,col=[0.8, 0.0, 0.0],label=True,fs=15,data_dir='../data/'):
+    def DessertScience2020(ax,ec='gray',fc='lightgray',z=0,label=False,fs=15,alpha=0.5,data_dir='../data/'):
         # arXiv[1812.06976]
         y2 = ax.get_ylim()[1]
         DessertLimit = pd.read_csv(data_dir+'DessertScienceLimit.txt',delimiter=' ',header=None)
         m_arr = DessertLimit.iloc[0]
         sin_arr = DessertLimit.iloc[1]
-        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=None,facecolor=col,zorder=0.1)
+        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
-            plt.text(7,1e-12,r'XMM MW Halo',fontsize=fs,color=col,rotation=90,ha='left',va='top')
+            plt.text(7,1e-12,r'XMM MW Halo',fontsize=fs,color='k',rotation=90,ha='left',va='top')
+
+        return
+    
+    def FosterGP2021(ax,ec='gray',fc='lightgray',z=1,label=False,fs=15,alpha=0.5,data_dir='../data/'):
+        # arXiv[2102.02207]
+        y2 = ax.get_ylim()[1]
+        FosterLimit = np.load(data_dir+'LimitsFoster2021_MWHalo.npy')
+        m_arr = FosterLimit[0]
+        sin_arr = FosterLimit[1]
+        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
+        if label==True:
+            plt.text(7,1e-12,r'XMM MW Halo',fontsize=fs,color='k',rotation=90,ha='left',va='top')
 
         return
 
 
-    def PerezBulge2019(ax,col=[0.1, 0.5, 0.2],label=True,fs=17,Rescale=True,data_dir='../data/'):
+    def PerezBulge2019(ax,ec='gray',fc='lightgray',z=5,label=False,fs=17,alpha=0.5,Rescale=True,data_dir='../data/'):
         # 1908.09037
 
         y2 = ax.get_ylim()[1]
@@ -106,78 +117,106 @@ class SterileNeutrinoMixing():
             RescalingFactor = 1
         
         m_arr,sin_arr = wpd.read_csv(data_dir+'Perez2019Bulge.csv')
-        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=None,facecolor=col,zorder=0.1)
-        plt.plot(m_arr,sin_arr*RescalingFactor,col,alpha=0.5,lw=0.5,zorder=0)
+        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
             plt.text(16,1e-12,r'NuSTAR',fontsize=fs,color='w',ha='left')
         
         return
 
-    def BulbulHalo2020(ax,col=[0.83, 0.07, 0.37],label=True,fs=15,Rescale=True,data_dir='../data/'):
+    def BulbulHalo2020(ax,ec='gray',fc='lightgray',z=4,label=False,fs=15,alpha=0.5,Rescale=True,data_dir='../data/'):
         # 2008.02283
         
         if Rescale:
-            Dfac_in_Halo_Bulbul = d_factor.D_factor_alt(rs=16,rho_local=0.67,r_GC = 8).return_D_factor(0,105)
-            Dfac_in_Halo_fiducial = d_factor.D_factor_alt(rs=20,rho_local=0.4,r_GC = 8.127).return_D_factor(0,105)
+            Dfac_in_Halo_Bulbul = d_factor.D_factor_alt(rs=16,rho_local=0.67,r_GC = 8).return_D_factor(0,95)
+            Dfac_in_Halo_fiducial = d_factor.D_factor_alt(rs=20,rho_local=0.4,r_GC = 8.127).return_D_factor(0,95)
             RescalingFactor = Dfac_in_Halo_fiducial/Dfac_in_Halo_Bulbul
         else:
             RescalingFactor = 1
         y2 = ax.get_ylim()[1]
         m_arr,sin_arr = wpd.read_csv(data_dir+'Bulbul2020BS.csv')
-        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=None,facecolor=col,zorder=1)
-        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0]*RescalingFactor,y2],color=col,alpha=0.5,zorder=0.9,lw=2)
-        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1]*RescalingFactor,y2],color=col,alpha=0.5,zorder=0.9,lw=2)
-        plt.plot(m_arr,sin_arr*RescalingFactor,col,lw=1,zorder=10,alpha=0.5)
+        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
+        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
+        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
         if label==True:
             plt.text(9.5,1.3e-11,r'Chandra MW Halo',fontsize=fs,color='w',rotation=0,ha='center',va='top',zorder=10)
 
         return
     
-    def MiscXMMChandra(ax,fs=15,label=True,col=[0.7, 0.2, 0.2],data_dir='../data/'):
+    def SicilianHalo2022(ax,ec='gray',fc='lightgray',z=4.1,label=False,fs=15,alpha=0.5,Rescale=True,data_dir='../data/'):
+        # 2208.12271
+        
+        if Rescale:
+            Dfac_in_Halo_Sicilian = d_factor.D_factor_alt(rs=26,rho_local=0.28,r_GC = 8).return_D_factor(0,95)
+            Dfac_in_Halo_fiducial = d_factor.D_factor_alt(rs=20,rho_local=0.4,r_GC = 8.127).return_D_factor(0,95)
+            RescalingFactor = Dfac_in_Halo_fiducial/Dfac_in_Halo_Sicilian
+        else:
+            RescalingFactor = 1
+        y2 = ax.get_ylim()[1]
+        m_arr,sin_arr = wpd.read_csv(data_dir+'LimitsSicilian2022_MWHalo.csv')
+        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
+        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
+        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
+
+        return
+    
+    def RoachHalo2022(ax,ec='gray',fc='lightgray',z=4.1,label=False,fs=15,alpha=0.5,Rescale=True,data_dir='../data/'):
+        # 2207.04572
+        
+        if Rescale:
+            Dfac_in_Halo_Roach = d_factor.D_factor_alt(rs=20,rho_local=0.4,r_GC = 8.1).return_D_factor(0,100)
+            Dfac_in_Halo_fiducial = d_factor.D_factor_alt(rs=20,rho_local=0.4,r_GC = 8.127).return_D_factor(0,100)
+            RescalingFactor = Dfac_in_Halo_fiducial/Dfac_in_Halo_Roach
+        else:
+            RescalingFactor = 1
+        y2 = ax.get_ylim()[1]
+        m_arr,sin_arr = wpd.read_csv(data_dir+'LimitsRoach2022_MWHalo.csv')
+        plt.fill_between(m_arr,sin_arr*RescalingFactor,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
+        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
+        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1]*RescalingFactor,y2],color=ec,alpha=alpha,zorder=z)
+
+        return
+    
+    def MiscXMMChandra(ax,ec='gray',fc='lightgray',z=3,fs=15,label=False,alpha=0.5,data_dir='../data/'):
         y2 = ax.get_ylim()[1]
         
         m_arr,sin_arr = wpd.read_csv(data_dir+'XrayConglomerated.csv')
-        plt.plot(m_arr,sin_arr,color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=None,facecolor=col,zorder=0)
+        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color=fc,alpha=alpha,zorder=z)
+        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color=fc,alpha=alpha,zorder=z)
+        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
             plt.text(6.25,6e-10,r'XMM and Chandra',fontsize=fs,color='w',rotation=90,ha='center',va='top',zorder=10)
 
-    def AbajAndromeda2013(ax,fs=15,col=[0.5, 0.0, 0.13],label=True,data_dir='../data/'):
+    def AbajAndromeda2013(ax,ec='gray',fc='lightgray',z=2,fs=15,label=False,alpha=0.5,data_dir='../data/'):
         # 1311.0282
         y2 = ax.get_ylim()[1]
         
         m_arr,sin_arr = wpd.read_csv(data_dir+'M31_Xray.csv')
-        plt.plot(m_arr,sin_arr,color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color=col,alpha=0.5,zorder=-0.1,lw=2)
-        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=None,facecolor=col,zorder=-0.2)
+        plt.plot([m_arr[0],m_arr[0]],[sin_arr[0],y2],color=ec,alpha=alpha,zorder=z)
+        plt.plot([m_arr[-1],m_arr[-1]],[sin_arr[-1],y2],color=ec,alpha=alpha,zorder=z)
+        plt.fill_between(m_arr,sin_arr,y2=y2,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
             plt.text(5.2,8e-10,r'M31',fontsize=fs,color='w',rotation=0,ha='center',va='top',zorder=5)
 
 
-    def DMUnderproduction(ax,fs=20,col='k',alpha=0.2,label=True,text_col='k',data_dir='../data/'):
+    def DMUnderproduction(ax,ec='gray',fc='lightgray',z=0.1,fs=20,alpha=0.2,label=False,text_col='k',data_dir='../data/'):
         y2 = ax.get_ylim()[-1]
 
         # arxiv: 2009.07206
         m_arr,sin_arr = wpd.read_csv(data_dir+'BBN.csv')
-        plt.plot(m_arr,sin_arr,color=col,lw=3,alpha=min(alpha*2,1),zorder=0)
-        plt.fill_between(m_arr,0,sin_arr,edgecolor=None,facecolor=col,zorder=0,alpha=0.2)
+        plt.fill_between(m_arr,0,sin_arr,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
             plt.text(5,2e-13,r'DM Underproduction',fontsize=fs,color=text_col,ha='center')
 
         return
     
-    def DES_Subhalo_Counts(ax,fs=20,col=[0.03, 0.57, 0.82],label=True,alpha=0.2,text_col='k',data_dir='../data/'):
+    def DES_Subhalo_Counts(ax,ec='gray',fc='lightgray',z=0.1,fs=20,label=False,alpha=0.2,text_col='k',data_dir='../data/'):
         y2 = ax.get_ylim()[-1]
 
         # arxiv: 2008.00022
         m_arr,sin_arr = wpd.read_csv(data_dir+'DES_MWsubhalo.csv')
         sin_arr_continued = np.concatenate([sin_arr,[y2]])
         m_arr_continued = np.concatenate([m_arr,[m_arr[-1]]])
-        plt.plot(m_arr_continued,sin_arr_continued,color=col,lw=3,alpha=min(alpha*2,1),zorder=100)
-        plt.fill_betweenx(sin_arr_continued,m_arr_continued,edgecolor=None,facecolor=col,zorder=3,alpha=0.2)
+        plt.fill_betweenx(sin_arr_continued,m_arr_continued,edgecolor=ec,facecolor=fc,zorder=z,alpha=alpha)
         if label==True:
             plt.text(18,1e-10,r'DES',fontsize=fs,color=text_col,ha='center')
 
